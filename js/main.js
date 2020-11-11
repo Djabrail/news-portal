@@ -10,6 +10,8 @@ menuToggle.addEventListener('click', function (event) {
   menu.classList.toggle('visible');
 })
 
+const regExpValidEmail = /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/;
+
 
 const loginElem = document.querySelector('.login')
 const loginForm = document.querySelector('.login-form')
@@ -19,6 +21,9 @@ const loginSignup = document.querySelector('.login-signup')
 
 const userElem = document.querySelector('.user')
 const userNameElem = document.querySelector('.user-name')
+
+const exitElem = document.querySelector('.exit')
+
 
 
 
@@ -40,6 +45,11 @@ const listUsers = [
 const setUser = {
   user: null,
   logIn(email, password, handler) {
+    if(!regExpValidEmail.test(email)) {
+      alert('email не валиден')
+      return
+    }
+
     const user = this.getUser(email)
     if (user && user.password === password) {
       this.autorizedUser(user)
@@ -48,10 +58,22 @@ const setUser = {
       alert('Пользователь с такими данными не найден')
     }
   },
-  logOut() {
-    console.log('выход');
+  logOut(handler) {
+    this.user = null
+    handler()
   },
   signUp(email, password, handler) {
+
+    if(!regExpValidEmail.test(email)) {
+      alert('email не валиден')
+      return
+    }
+
+    if (!email.trim() || !password.trim()) {
+      alert('Введите данные')
+      return
+    }
+
     if (!this.getUser(email)) {
       const user = {email, password, displayName: email.split('@')[0]}
       listUsers.push(user)
@@ -100,6 +122,12 @@ loginForm.addEventListener('submit', event => {
 loginSignup.addEventListener('click', event => {
   event.preventDefault()
   setUser.signUp(emailInput.value, passwordInput.value, toggleAuthDom)
+  loginForm.reset()
+})
+
+exitElem.addEventListener('click', event => {
+  event.preventDefault()
+  setUser.logOut(toggleAuthDom)
 })
 
 toggleAuthDom()
